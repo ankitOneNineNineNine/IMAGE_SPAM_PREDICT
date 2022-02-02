@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+
+
+
+
+    <canvas></canvas>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@2.0.0/dist/tf.min.js"></script>
+    <script>
+        const canvas = document.querySelector('canvas')
+        const ctx = canvas.getContext('2d');
+        canvas.width = 224;
+        canvas.height = 224;
+        let img = new Image();
+
+        const modelInit = async () => {
+            class L2 {
+
+                static className = 'L2';
+
+                constructor(config) {
+                    return tf.regularizers.l1l2(config)
+                }
+            }
+            tf.serialization.registerClass(L2);
+
+            var model = await tf.loadLayersModel(`./EASY/NEWJSON2/model.json`);
+            return model;
+            // console.log(model.summary())
+            // img = image.load_img(img_path, target_size = (224, 224))
+            // img_array = image.img_to_array(img)
+            // img_batch = np.expand_dims(img_array, axis = 0)
+        }
+        img.onload = async () => {
+            ctx.drawImage(img, 0, 0)
+            const tensor = tf.browser
+                .fromPixels(canvas)
+                // .div(255)
+                .toFloat()
+                .expandDims(0);
+
+            let model = await modelInit();
+            let prediction = await model.predict(tensor)
+            let predVal = prediction.arraySync()[0][0]
+            console.log(predVal? 'spam': 'ham')
+
+
+        };
+        img.src = './spam (7).png';
+
+    </script>
+</body>
+
+</html>
